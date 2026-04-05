@@ -49,7 +49,7 @@ Crea un archivo `.env` en la raíz del proyecto:
 PORT=3000
 JWT_SECRET=tu_clave_super_segura
 JWT_EXPIRES_IN=cuanto_tiempo_estara_disponible_la_cuenta
-DB_FILE=nombre_dela_base_de_datos
+DB_FILE=nombre_dela_base_de_datos 
 ```
 
 #### 🔐 Sobre JWT_SECRET
