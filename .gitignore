@@ -1,0 +1,15 @@
+# Dependencias (muy pesadas para git)
+node_modules/
+backend/node_modules/
+
+# Seguridad (donde están tus claves secretas)
+.env
+backend/.env
+
+# Base de datos (datos personales de usuarios)
+*.db
+backend/vault.db
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

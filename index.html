@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vault Seguro — Password Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div id="wrapper" class="app">
+
+  <!-- ── PANTALLA DE AUTENTICACIÓN ── -->
+  <div id="screen-auth" class="screen active">
+    <div class="auth-wrap">
+      <div class="auth-card">
+
+        <div class="auth-logo">
+          <div class="auth-logo-icon">🔐</div>
+          <div class="auth-logo-text">Vault Seguro</div>
+        </div>
+
+        <div class="tab-row">
+          <button class="tab active" id="tab-in" onclick="authTab('in')">Iniciar sesión</button>
+          <button class="tab" id="tab-up" onclick="authTab('up')">Crear cuenta</button>
+        </div>
+
+        <!-- Formulario login -->
+        <div id="pane-in">
+          <label for="li-email">Correo</label>
+          <input type="email" id="li-email" placeholder="tu@email.com" />
+
+          <label for="li-pw">Contraseña maestra</label>
+          <input type="password" id="li-pw" placeholder="Contraseña maestra..." />
+
+          <div class="err" id="li-err">Correo o contraseña incorrectos.</div>
+          <button class="btn primary full" onclick="doLogin()">Entrar al vault</button>
+          <div class="notice">Todo se cifra con AES-256 antes de guardarse. Tu contraseña nunca se almacena.</div>
+        </div>
+
+        <!-- Formulario registro -->
+        <div id="pane-up" class="hidden">
+          <label for="ru-name">Nombre</label>
+          <input type="text" id="ru-name" placeholder="Tu nombre..." />
+
+          <label for="ru-email">Correo</label>
+          <input type="email" id="ru-email" placeholder="tu@email.com" />
+
+          <label for="ru-pw">Contraseña maestra</label>
+          <input type="password" id="ru-pw" placeholder="Mínimo 8 caracteres..." />
+          <div class="str-bar" id="ru-bar">
+            <div class="str-seg" id="ru-s1"></div>
+            <div class="str-seg" id="ru-s2"></div>
+            <div class="str-seg" id="ru-s3"></div>
+            <div class="str-seg" id="ru-s4"></div>
+          </div>
+
+          <label for="ru-pw2">Confirmar contraseña</label>
+          <input type="password" id="ru-pw2" placeholder="Repite la contraseña..." />
+
+          <div class="err" id="ru-err">Las contraseñas no coinciden o son muy cortas.</div>
+          <div class="ok"  id="ru-ok">Cuenta creada. Inicia sesión.</div>
+          <button class="btn primary full" onclick="doRegister()">Crear cuenta</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PANTALLA PRINCIPAL ── -->
+  <div id="screen-app" class="screen">
+    <div class="layout">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="logo-icon">🔐</div>
+          <div class="logo-text">Vault</div>
+        </div>
+
+        <nav>
+          <div class="nav-item active" id="nav-vault" onclick="goPage('vault')">
+            <div class="nav-dot"></div>Mi vault
+          </div>
+          <div class="nav-item" id="nav-gen" onclick="goPage('gen')">
+            <div class="nav-dot"></div>Generador
+          </div>
+          <div class="nav-item" id="nav-audit" onclick="goPage('audit')">
+            <div class="nav-dot"></div>Auditoría
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="user-chip">
+            <div class="avatar" id="sidebar-av">?</div>
+            <div class="user-name" id="sidebar-name">Usuario</div>
+          </div>
+          <div class="logout-wrap">
+            <span class="lock-link" onclick="doLogout()">Cerrar sesión</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Contenido principal -->
+      <main class="main">
+
+        <!-- Página: Mi Vault -->
+        <section id="page-vault">
+          <h1 class="page-title">Mi vault</h1>
+          <p class="page-sub" id="vault-sub">Tus contraseñas cifradas</p>
+
+          <div class="stats-row">
+            <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">contraseñas</div></div>
+            <div class="stat"><div class="stat-n" id="st-cats">0</div><div class="stat-l">categorías</div></div>
+            <div class="stat"><div class="stat-n" id="st-weak">0</div><div class="stat-l">débiles</div></div>
+          </div>
+
+          <div class="search-row">
+            <input type="text" id="search" placeholder="Buscar por nombre o usuario..." oninput="renderVault()" />
+            <button class="btn primary" onclick="openAdd()">+ Agregar</button>
+          </div>
+
+          <div class="cat-filter" id="cat-filter"></div>
+          <div id="vault-list"></div>
+        </section>
+
+        <!-- Página: Generador -->
+        <section id="page-gen" class="hidden">
+          <h1 class="page-title">Generador de contraseñas</h1>
+          <p class="page-sub">Crea contraseñas seguras al instante</p>
+
+          <div class="gen-section">
+            <div class="gen-pw-display" id="gen-display">Haz clic en Generar</div>
+            <div class="gen-actions">
+              <button class="btn primary flex1" onclick="genPw()">Generar</button>
+              <button class="btn sm" onclick="copyGen()">Copiar</button>
+            </div>
+            <div class="option-row">
+              <span>Longitud</span>
+              <input type="range" min="8" max="40" value="20" step="1" id="gen-len" oninput="document.getElementById('gen-len-v').textContent=this.value; genPw()" />
+              <span class="option-val" id="gen-len-v">20</span>
+            </div>
+            <div class="option-row">
+              <input type="checkbox" id="gen-upper" checked onchange="genPw()" />
+              <span>Mayúsculas (A-Z)</span>
+            </div>
+            <div class="option-row">
+              <input type="checkbox" id="gen-num" checked onchange="genPw()" />
+              <span>Números (0-9)</span>
+            </div>
+            <div class="option-row">
+              <input type="checkbox" id="gen-sym" checked onchange="genPw()" />
+              <span>Símbolos (!@#$...)</span>
+            </div>
+          </div>
+
+          <div class="str-bar" id="gen-bar">
+            <div class="str-seg" id="gen-s1"></div>
+            <div class="str-seg" id="gen-s2"></div>
+            <div class="str-seg" id="gen-s3"></div>
+            <div class="str-seg" id="gen-s4"></div>
+          </div>
+          <div id="gen-lbl" class="gen-lbl"></div>
+        </section>
+
+        <!-- Página: Auditoría -->
+        <section id="page-audit" class="hidden">
+          <h1 class="page-title">Auditoría de seguridad</h1>
+          <p class="page-sub">Revisa el estado de tus contraseñas</p>
+          <div id="audit-list"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ── MODAL AGREGAR / EDITAR ── -->
+  <div class="modal-wrap" id="modal">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title" id="modal-ttl">Nueva contraseña</div>
+        <button class="close-btn" onclick="closeModal()">✕</button>
+      </div>
+
+      <label for="f-name">Nombre del sitio *</label>
+      <input type="text" id="f-name" placeholder="Ej: Gmail, Netflix..." />
+
+      <label for="f-user">Usuario / Email *</label>
+      <input type="email" id="f-user" placeholder="usuario@email.com" />
+
+      <label for="f-pw">Contraseña *</label>
+      <div class="pw-row">
+        <div class="pw-input-wrap">
+          <input type="password" id="f-pw" placeholder="Contraseña..." oninput="chkStr(this.value, 'f-bar')" />
+          <div class="str-bar" id="f-bar">
+            <div class="str-seg" id="f-s1"></div>
+            <div class="str-seg" id="f-s2"></div>
+            <div class="str-seg" id="f-s3"></div>
+            <div class="str-seg" id="f-s4"></div>
+          </div>
+        </div>
+        <button class="btn sm" onclick="fillGenPw()">Generar</button>
+        <button class="btn sm" onclick="toggleFPw()">Ver</button>
+      </div>
+
+      <label for="f-cat">Categoría</label>
+      <input type="text" id="f-cat" placeholder="Ej: Redes sociales, Trabajo..." />
+
+      <label for="f-url">URL (opcional)</label>
+      <input type="url" id="f-url" placeholder="https://..." />
+
+      <label for="f-notes">Notas (opcional)</label>
+      <input type="text" id="f-notes" placeholder="Notas privadas..." />
+
+      <div class="modal-actions">
+        <button class="btn primary flex1" onclick="saveEntry()" id="save-btn">Guardar</button>
+        <button class="btn danger" id="del-btn" class="hidden" onclick="deleteEntry()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
