@@ -123,15 +123,23 @@ Salida esperada:
 ## 📁 Estructura
 
 ```
-backend/
-├── server.js
-├── app.js
-├── db.js
-├── auth.js
-├── vault.js
-├── middleware.js
-├── .env
-└── package.json
+Password Manager
+│
+├──index.html
+├──script.js
+├──styles.css
+├──README.md
+├──.gitignore
+│
+├──backend/
+   ├── server.js
+   ├── app.js
+   ├── db.js
+   ├── auth.js
+   ├── vault.js
+   ├── middleware.js
+   ├── .env
+   └── package.json
 ```
 
 ---
