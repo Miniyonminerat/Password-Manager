@@ -1,127 +1,199 @@
-# Vault Seguro — Backend
+# 🔐 Vault Seguro — Backend
 
-## Cómo correr el servidor paso a paso
+Backend de una aplicación de gestión de contraseñas con enfoque en **seguridad y privacidad**.
+
+Este proyecto sigue el principio de **zero-knowledge**, lo que significa que el servidor **nunca tiene acceso a las contraseñas en texto plano**.
+Toda la información sensible es cifrada en el cliente antes de enviarse.
+
+---
+
+## 🚀 Cómo ejecutar el servidor
 
 ### 1. Instalar Node.js
-Descarga Node.js desde https://nodejs.org  
-Elige la versión LTS (la recomendada). Instálala normalmente.
 
-Verifica que quedó instalado abriendo la terminal y escribiendo:
-```
+Descarga Node.js desde: https://nodejs.org
+Instala la versión **LTS**.
+
+Verifica la instalación:
+
+```bash
 node --version
 npm --version
 ```
-Los dos deben mostrar un número de versión.
 
 ---
 
-### 2. Abrir la terminal en la carpeta del backend
-En Windows: clic derecho dentro de la carpeta → "Abrir en Terminal"  
-En Mac: arrastra la carpeta al ícono de Terminal  
+### 2. Abrir la terminal
 
----
+Ubícate dentro de la carpeta del backend:
 
-### 3. Instalar las dependencias
+```bash
+cd backend
 ```
+
+---
+
+### 3. Instalar dependencias
+
+```bash
 npm install
 ```
-Esto descarga todas las librerías listadas en package.json.
-Solo necesitas hacerlo una vez.
 
 ---
 
-### 4. Configurar el archivo .env
-El archivo `.env` ya está creado. Abre y cambia `JWT_SECRET` por
-cualquier texto largo y aleatorio. Por ejemplo:
+### 4. Configurar variables de entorno
+
+Crea un archivo `.env` en la raíz del proyecto:
+
+```env
+PORT=3000
+JWT_SECRET=tu_clave_super_segura
 ```
-JWT_SECRET=mi_clave_super_secreta_que_nadie_sabe_xyz_789
+
+#### 🔐 Sobre JWT_SECRET
+
+* Es la clave que firma los tokens de autenticación
+* Debe ser larga, aleatoria y privada
+* Nunca la subas a GitHub
+
+Puedes generar una segura con:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 ---
 
-### 5. Correr el servidor
-```
+### 5. Ejecutar el servidor
+
+Modo normal:
+
+```bash
 npm start
 ```
-Deberías ver:
+
+Modo desarrollo:
+
+```bash
+npm run dev
+```
+
+Salida esperada:
+
 ```
 📦 Base de datos conectada: /ruta/vault.db
 ✅ Servidor corriendo en http://localhost:3000
 ```
 
-Para desarrollo (se reinicia automáticamente al guardar cambios):
-```
-npm run dev
-```
+---
+
+## 📡 Endpoints
+
+| Método | Ruta               | Descripción            | Auth |
+| ------ | ------------------ | ---------------------- | ---- |
+| GET    | /                  | Estado del servidor    | ❌    |
+| POST   | /api/auth/register | Registro               | ❌    |
+| POST   | /api/auth/login    | Login (JWT)            | ❌    |
+| GET    | /api/vault         | Obtener datos cifrados | ✅    |
+| PUT    | /api/vault         | Guardar datos cifrados | ✅    |
 
 ---
 
-## Rutas disponibles
+## 🧠 Cómo funciona
 
-| Método | Ruta                    | Descripción                  | Auth |
-|--------|-------------------------|------------------------------|------|
-| GET    | /                       | Verificar que el server vive | No   |
-| POST   | /api/auth/register      | Crear cuenta                 | No   |
-| POST   | /api/auth/login         | Iniciar sesión → devuelve JWT| No   |
-| GET    | /api/vault              | Obtener vault cifrado        | Sí   |
-| PUT    | /api/vault              | Guardar vault cifrado        | Sí   |
+1. El usuario se registra
+2. La contraseña se hashea con **bcrypt**
+3. En login:
+
+   * Se valida la contraseña
+   * Se genera un **JWT**
+4. El frontend:
+
+   * Cifra los datos con **AES-256-GCM**
+   * Envía información ya protegida
+5. El backend:
+
+   * Solo almacena datos cifrados
+   * Nunca accede a contraseñas reales
 
 ---
 
-## Estructura de archivos
+## 📁 Estructura
 
 ```
 backend/
-├── server.js      → Arranca el servidor en el puerto configurado
-├── app.js         → Configura Express, CORS y las rutas
-├── db.js          → Conexión a SQLite y creación de tablas
-├── auth.js        → Registro y login (bcrypt + JWT)
-├── vault.js       → Guardar y leer el vault (rutas protegidas)
-├── middleware.js  → Verifica el JWT en rutas protegidas
-├── .env           → Variables secretas (NO subir a GitHub)
-└── package.json   → Dependencias del proyecto
+├── server.js
+├── app.js
+├── db.js
+├── auth.js
+├── vault.js
+├── middleware.js
+├── .env
+└── package.json
 ```
 
 ---
 
-## Tecnologías de seguridad usadas
+## 🔐 Tecnologías
 
-- **bcrypt** — Hashea la contraseña maestra antes de guardarla.
-  Nunca se almacena la contraseña en texto plano.
-- **JWT** — Genera un token firmado al hacer login.
-  El frontend lo envía en cada petición para autenticarse.
-- **AES-256-GCM** — El vault se cifra en el navegador antes de
-  enviarse. El servidor nunca ve las contraseñas individuales.
-- **SQLite** — Base de datos local en un solo archivo (vault.db).
+* **bcrypt** → Hash de contraseñas
+* **JWT** → Autenticación
+* **AES-256-GCM** → Cifrado del lado del cliente
+* **SQLite** → Base de datos
 
 ---
 
-## Probar la API con Thunder Client o Postman
+## 🧪 Pruebas
 
-**Registrar usuario:**
+### Registro
+
 ```
 POST http://localhost:3000/api/auth/register
-Body (JSON):
+```
+
+```json
 {
-  "nombre": "Tu Nombre",
-  "email": "tu@email.com",
-  "password": "tucontraseña123"
+  "nombre": "Juan",
+  "email": "juan@email.com",
+  "password": "123456789"
 }
 ```
 
-**Iniciar sesión:**
+---
+
+### Login
+
 ```
 POST http://localhost:3000/api/auth/login
-Body (JSON):
+```
+
+```json
 {
-  "email": "tu@email.com",
-  "password": "tucontraseña123"
+  "email": "juan@email.com",
+  "password": "123456789"
 }
 ```
-Copia el `token` que devuelve.
 
-**Obtener vault:**
+---
+
+### Obtener vault
+
 ```
 GET http://localhost:3000/api/vault
-Header: Authorization: Bearer <pega el token aquí>
 ```
+
+Header:
+
+```
+Authorization: Bearer TU_TOKEN
+```
+
+---
+
+## ⚠️ Notas
+
+* No subir `.env` al repositorio
+* Este backend depende de un frontend que realice el cifrado
+* Proyecto enfocado en seguridad y buenas prácticas
+
+---
